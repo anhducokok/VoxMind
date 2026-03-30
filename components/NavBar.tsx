@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Show, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
+import { Show, SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 const navItems = [
