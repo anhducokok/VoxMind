@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { Show, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -13,11 +13,11 @@ const navItems = [
 
 const Navbar = () => {
     const pathName = usePathname();
-
+    const { user } = useUser();
     return (
-        <header className="w-full fixed z-50 bg-[--bg-primary]">
+        <header className="w-full fixed z-50 bg-[var(--bg-primary)] backdrop-blur-sm border-b border-gray-200">
             <div className="wrapper navbar-height py-4 flex justify-between items-center">
-                <Link href="/" className="flex gap-0.5 items-center">
+                <Link href="/" className="flex gap-0.5 items-center text-lg font-medium">
                     <span className="logo-text">Voxmind</span>
                 </Link>
 
@@ -38,12 +38,19 @@ const Navbar = () => {
                         );
                     })}
 
-                    <div className="flex gap-3 items-center">
+                    <div className="flex gap-7.5 items-center">
                         <Show when="signed-out">
-                            <SignInButton />
+                            <SignInButton mode="modal" />
                         </Show>
                         <Show when="signed-in">
-                            <UserButton />
+                            <div className="nav-user-link">
+                                <UserButton />
+                                {user?.firstName && (
+                                    <Link href="/subscriptions" className="nav-user-name">
+                                        {user.firstName}
+                                    </Link>
+                                )}
+                            </div>
                         </Show>
                     </div>
                 </nav>

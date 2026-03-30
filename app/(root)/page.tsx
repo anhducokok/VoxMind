@@ -7,7 +7,7 @@ import BookCard from "@/components/BookCard";
 
 export default function Page() {
   return (
-    <main>
+    <main className="pt-[var(--navbar-height)]">
       <LibraryHero />
       <div className="library-books-grid">
         {sampleBooks.map((book) => (
