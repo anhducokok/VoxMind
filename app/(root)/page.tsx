@@ -7,9 +7,9 @@ import BookCard from "@/components/BookCard";
 
 export default function Page() {
   return (
-    <main className="wrapper container flex min-h-screen flex-col">
+    <main>
       <LibraryHero />
-      <div className="library-hero-grid">
+      <div className="library-books-grid">
         {sampleBooks.map((book) => (
           <BookCard
             key={book._id}
