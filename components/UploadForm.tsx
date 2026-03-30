@@ -13,12 +13,11 @@ import { ACCEPTED_PDF_TYPES, ACCEPTED_IMAGE_TYPES, DEFAULT_VOICE } from '@/lib/c
 import FileUploader from './FileUploader';
 import VoiceSelector from './VoiceSelector';
 import LoadingOverlay from './LoadingOverlay';
-import {useAuth, useUser} from "@clerk/nextjs";
+import {useAuth} from "@clerk/nextjs";
 import { toast } from 'sonner';
 import {checkBookExists, createBook, saveBookSegments} from "@/lib/actions/book.actions";
 import {useRouter} from "next/navigation";
 import {parsePDFFile} from "@/lib/utils";
-// import {upload} from "@vercel/blob/client"; // Removed due to missing module or type declarations
 
 const UploadForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,7 +34,7 @@ const UploadForm = () => {
         defaultValues: {
             title: '',
             author: '',
-            persona: '',
+            persona: DEFAULT_VOICE,
             pdfFile: undefined,
             coverImage: undefined,
         },
@@ -70,31 +69,29 @@ const UploadForm = () => {
                 return;
             }
 
-            const uploadedPdfBlob = await upload(fileTitle, pdfFile, {
-                access: 'public',
-                handleUploadUrl: '/api/upload',
-                contentType: 'application/pdf'
-            });
+            const pdfFormData = new FormData();
+            pdfFormData.append('file', pdfFile, `${fileTitle}.pdf`);
+            const pdfUploadRes = await fetch('/api/upload', { method: 'POST', body: pdfFormData });
+            if (!pdfUploadRes.ok) throw new Error('PDF upload failed');
+            const uploadedPdfBlob: { url: string; pathname: string } = await pdfUploadRes.json();
 
             let coverUrl: string;
 
             if(data.coverImage) {
-                const coverFile = data.coverImage;
-                const uploadedCoverBlob = await upload(`${fileTitle}_cover.png`, coverFile, {
-                    access: 'public',
-                    handleUploadUrl: '/api/upload',
-                    contentType: coverFile.type
-                });
+                const coverFormData = new FormData();
+                coverFormData.append('file', data.coverImage, `${fileTitle}_cover.png`);
+                const coverUploadRes = await fetch('/api/upload', { method: 'POST', body: coverFormData });
+                if (!coverUploadRes.ok) throw new Error('Cover upload failed');
+                const uploadedCoverBlob: { url: string } = await coverUploadRes.json();
                 coverUrl = uploadedCoverBlob.url;
             } else {
-                const response = await fetch(parsedPDF.cover)
-                const blob = await response.blob();
-
-                const uploadedCoverBlob = await upload(`${fileTitle}_cover.png`, blob, {
-                    access: 'public',
-                    handleUploadUrl: '/api/upload',
-                    contentType: 'image/png'
-                });
+                const coverFetchRes = await fetch(parsedPDF.cover);
+                const coverBlob = await coverFetchRes.blob();
+                const coverFormData = new FormData();
+                coverFormData.append('file', coverBlob, `${fileTitle}_cover.png`);
+                const coverUploadRes = await fetch('/api/upload', { method: 'POST', body: coverFormData });
+                if (!coverUploadRes.ok) throw new Error('Cover upload failed');
+                const uploadedCoverBlob: { url: string } = await coverUploadRes.json();
                 coverUrl = uploadedCoverBlob.url;
             }
 
