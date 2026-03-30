@@ -1,14 +1,25 @@
-'use client'
-import React from 'react'
-import { Button } from '@/components/ui/button'
+"use client";
 
-const page = () => {
+import React from "react";
+import { LibraryHero } from "@/components/LibraryHero";
+import { sampleBooks } from "@/lib/constants";
+import BookCard from "@/components/BookCard";
+
+export default function Page() {
   return (
-    <div className='flex flex-col items-center justify-center h-screen'>
-      <h1 className='text-4xl font-bold'>Hello World</h1>
-      <Button>Click me</Button>
-    </div>
-  )
+    <main className="wrapper container flex min-h-screen flex-col">
+      <LibraryHero />
+      <div className="library-hero-grid">
+        {sampleBooks.map((book) => (
+          <BookCard
+            key={book._id}
+            title={book.title}
+            author={book.author}
+            coverURL={book.coverURL}
+            slug={book.slug}
+          />
+        ))}
+      </div>
+    </main>
+  );
 }
-
-export default page
