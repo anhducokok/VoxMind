@@ -25,11 +25,17 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     if (!ALLOWED_CONTENT_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: "File type not allowed" }, { status: 400 });
+      return NextResponse.json(
+        { error: "File type not allowed" },
+        { status: 400 },
+      );
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: "File exceeds maximum size" }, { status: 400 });
+      return NextResponse.json(
+        { error: "File exceeds maximum size" },
+        { status: 400 },
+      );
     }
 
     const blob = await put(file.name, file, {
