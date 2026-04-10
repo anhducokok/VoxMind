@@ -47,7 +47,6 @@ const UploadForm = () => {
 
         setIsSubmitting(true);
 
-        // PostHog -> Track Book Uploads...
 
         try {
             const existsCheck = await checkBookExists(data.title);
@@ -72,7 +71,11 @@ const UploadForm = () => {
             const pdfFormData = new FormData();
             pdfFormData.append('file', pdfFile, `${fileTitle}.pdf`);
             const pdfUploadRes = await fetch('/api/upload', { method: 'POST', body: pdfFormData });
-            if (!pdfUploadRes.ok) throw new Error('PDF upload failed');
+            if (!pdfUploadRes.ok) {
+                const errBody = await pdfUploadRes.json().catch(() => ({}));
+                console.error('PDF upload server error:', pdfUploadRes.status, errBody);
+                throw new Error(errBody?.error ?? 'PDF upload failed');
+            }
             const uploadedPdfBlob: { url: string; pathname: string } = await pdfUploadRes.json();
 
             let coverUrl: string;
@@ -108,9 +111,9 @@ const UploadForm = () => {
 
             if (!book.success) {
                 toast.error(book.error as string || "Failed to create book");
-                if (book.isBillingError) {
-                    router.push("/subscriptions");
-                }
+                // if (book.isBillingError) {
+                //     router.push("/subscriptions");
+                // }
                 return;
             }
 
@@ -128,8 +131,8 @@ const UploadForm = () => {
                 throw new Error("Failed to save book segments");
             }
 
-            form.reset();
-            router.push('/');
+            // form.reset();
+            // router.push('/');
         } catch (error) {
             console.error(error);
 

@@ -15,17 +15,17 @@ Voxmind lets you turn any book into a voice-powered AI assistant. Upload a PDF, 
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16.2.1 (App Router) |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS v4, shadcn/ui, Radix UI |
-| Forms | React Hook Form + Zod v4 |
-| Auth | Clerk (`@clerk/nextjs` v7) |
-| Database | MongoDB via Mongoose v9 |
-| File Storage | Vercel Blob |
-| PDF Parsing | `pdfjs-dist` v5 (client-side) |
-| Voice AI | VAPI + ElevenLabs |
+| Layer        | Technology                           |
+| ------------ | ------------------------------------ |
+| Framework    | Next.js 16.2.1 (App Router)          |
+| Language     | TypeScript 5                         |
+| Styling      | Tailwind CSS v4, shadcn/ui, Radix UI |
+| Forms        | React Hook Form + Zod v4             |
+| Auth         | Clerk (`@clerk/nextjs` v7)           |
+| Database     | MongoDB via Mongoose v9              |
+| File Storage | Vercel Blob                          |
+| PDF Parsing  | `pdfjs-dist` v5 (client-side)        |
+| Voice AI     | VAPI + ElevenLabs                    |
 
 ## Project Structure
 

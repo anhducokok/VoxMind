@@ -1,16 +1,15 @@
 "use server";
 
 import { CreateBook, TextSegment } from "@/types";
-// import {connectToDatabase} from "@/database/mongoose";
+import { connectToDatabase } from "@/database/mongoose";
 import { escapeRegex, generateSlug, serializeData } from "@/lib/utils";
 import Book from "@/database/models/book.model";
 import BookSegment from "@/database/models/book-segment.model";
 import mongoose from "mongoose";
-// import {getUserPlan} from "@/lib/subscription.server";
 
 export const getAllBooks = async (search?: string) => {
   try {
-    // await connectToDatabase();
+    await connectToDatabase();
 
     let query = {};
 
@@ -32,14 +31,14 @@ export const getAllBooks = async (search?: string) => {
     console.error("Error connecting to database", e);
     return {
       success: false,
-      error: e,
+      error: e instanceof Error ? e.message : String(e),
     };
   }
 };
 
 export const checkBookExists = async (title: string) => {
   try {
-    // await connectToDatabase();
+    await connectToDatabase();
 
     const slug = generateSlug(title);
 
@@ -59,75 +58,73 @@ export const checkBookExists = async (title: string) => {
     console.error("Error checking book exists", e);
     return {
       exists: false,
-      error: e,
+      error: e instanceof Error ? e.message : String(e),
     };
   }
 };
 
 export const createBook = async (_data: CreateBook) => {
-  // try {
-  //     await connectToDatabase();
+  try {
+    await connectToDatabase();
 
-  //     const slug = generateSlug(data.title);
+    const slug = generateSlug(_data.title);
 
-  //     const existingBook = await Book.findOne({slug}).lean();
+    const existingBook = await Book.findOne({ slug }).lean();
 
-  //     if(existingBook) {
-  //         return {
-  //             success: true,
-  //             data: serializeData(existingBook),
-  //             alreadyExists: true,
-  //         }
-  //     }
+    if (existingBook) {
+      return {
+        success: true,
+        data: serializeData(existingBook),
+        alreadyExists: true,
+      };
+    }
 
-  // Todo: Check subscription limits before creating a book
-  // const { getUserPlan } = await import("@/lib/subscription.server");
-  // const { PLAN_LIMITS } = await import("@/lib/subscription-constants");
+    // Todo: Check subscription limits before creating a book
+    // const { getUserPlan } = await import("@/lib/subscription.server");
+    // const { PLAN_LIMITS } = await import("@/lib/subscription-constants");
 
-  // const { auth } = await import("@clerk/nextjs/server");
-  // const { userId } = await auth();
+    const { auth } = await import("@clerk/nextjs/server");
+    const { userId } = await auth();
 
-  // if (!userId || userId !== data.clerkId) {
-  //     return { success: false, error: "Unauthorized" };
-  // }
+    if (!userId || userId !== _data.clerkId) {
+      return { success: false, error: "Unauthorized" };
+    }
 
-  // const plan = await getUserPlan();
-  // const limits = PLAN_LIMITS[plan];
+    // const plan = await getUserPlan();
+    // const limits = PLAN_LIMITS[plan];
 
-  // const bookCount = await Book.countDocuments({ clerkId: userId });
+    // const bookCount = await Book.countDocuments({ clerkId: userId });
 
-  // if (bookCount >= limits.maxBooks) {
-  //     const { revalidatePath } = await import("next/cache");
-  //     revalidatePath("/");
+    // if (bookCount >= limits.maxBooks) {
+    //   const { revalidatePath } = await import("next/cache");
+    //   revalidatePath("/");
 
-  //     return {
-  //         success: false,
-  //         error: `You have reached the maximum number of books allowed for your ${plan} plan (${limits.maxBooks}). Please upgrade to add more books.`,
-  //         isBillingError: true,
-  //     };
-  // }
+    //   return {
+    //     success: false,
+    //     error: `You have reached the maximum number of books allowed for your ${plan} plan (${limits.maxBooks}). Please upgrade to add more books.`,
+    //     isBillingError: true,
+    //   };
+    // }
 
-  //     const book = await Book.create({...data, clerkId: userId, slug, totalSegments: 0});
+    const book = await Book.create({
+      ..._data,
+      clerkId: userId,
+      slug,
+      totalSegments: 0,
+    });
 
-  //     return {
-  //         success: true,
-  //         data: serializeData(book),
-  //     }
-  // } catch (e) {
-  //     console.error('Error creating a book', e);
+    return {
+      success: true,
+      data: serializeData(book),
+    };
+  } catch (e) {
+    console.error("Error creating a book", e);
 
-  //     return {
-  //         success: false,
-  //         error: e,
-  //     }
-  // }
-  return {
-    success: false,
-    error: "Not implemented",
-    isBillingError: false,
-    alreadyExists: false,
-    data: null as unknown as { _id: string; slug: string },
-  };
+    return {
+      success: false,
+      error: e instanceof Error ? e.message : String(e),
+    };
+  }
 };
 
 export const getBookBySlug = async (slug: string) => {
@@ -148,7 +145,7 @@ export const getBookBySlug = async (slug: string) => {
     console.error("Error fetching book by slug", e);
     return {
       success: false,
-      error: e,
+      error: e instanceof Error ? e.message : String(e),
     };
   }
 };
@@ -189,7 +186,7 @@ export const saveBookSegments = async (
 
     return {
       success: false,
-      error: e,
+      error: e instanceof Error ? e.message : String(e),
     };
   }
 };
