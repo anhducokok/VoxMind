@@ -246,13 +246,15 @@ export function useVapi(book: IBook) {
 
     return () => {
       // End active session on unmount
-      if (sessionIdRef.current) {
-        getVapi().stop();
-        endVoiceSession(sessionIdRef.current, durationRef.current).catch(
-          (err) =>
-            console.error("Failed to end voice session on unmount:", err),
-        );
+      const sessionId = sessionIdRef.current;
+      if (sessionId) {
+        // Clear the shared session ref before stopping so any `call-end`
+        // handler triggered by `stop()` does not end the same session again.
         sessionIdRef.current = null;
+        getVapi().stop();
+        endVoiceSession(sessionId, durationRef.current).catch((err) =>
+          console.error("Failed to end voice session on unmount:", err),
+        );
       }
       // Cleanup handlers
       Object.entries(handlers).forEach(([event, handler]) => {
